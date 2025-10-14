@@ -3,7 +3,7 @@ import mysql.connector
 db = mysql.connector.connect(username="root", host="localhost", password="1234567890", database="warehouse")
 cursor = db.cursor()
 
-def list_warehouses():
+def list_wh():
     query = """SELECT 
     w.WarehouseID,
     w.Location,
@@ -26,4 +26,21 @@ def add_wh():
     db.commit()
     print("Warehouse added successfully!\n")
 
-list_warehouses()
+def remove_wh():
+    warehouse_to_remove = int(input("Enter WarehouseID to remove: "))
+    cursor.execute("SELECT WarehouseID, Location FROM Warehouses WHERE WarehouseID != %s", (warehouse_to_remove,))
+    warehouses = cursor.fetchall()
+    if not warehouses:
+        print("No other warehouses available for transfer. Cannot remove this warehouse.")
+        return
+
+    print("Select warehouse ID to transfer parcels to:")
+    for w in warehouses:
+        print(f"{w[0]} - {w[1]}")
+    transfer_to = int(input("Enter destination WarehouseID: "))
+
+    cursor.execute("UPDATE Parcels SET WarehouseID = %s WHERE WarehouseID = %s", (transfer_to, warehouse_to_remove))
+
+    cursor.execute("DELETE FROM Warehouses WHERE WarehouseID = %s", (warehouse_to_remove,))
+    db.commit()
+    print(f"Warehouse {warehouse_to_remove} removed and parcels transferred to {transfer_to}.\n")

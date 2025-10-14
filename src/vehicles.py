@@ -4,18 +4,43 @@ from datetime import date
 db = mysql.connector.connect(username="root", host="localhost", password="1234567890", database="warehouse")
 cursor = db.cursor()
 
-def assign_vehicle():
-    parcel_id = int(input("Enter Parcel ID: "))
-    vehicle_id = int(input("Enter Vehicle ID: "))
-    amount = float(input("Enter booking amount: "))
+def list_vehicles(cursor):
+    query = """
+    SELECT VehicleID, Type, VStatus
+    FROM Vehicles
+    ORDER BY VehicleID
+    """
+    cursor.execute(query)
+    vehicles = cursor.fetchall()
+    print("VehicleID | Type | Status")
+    print("------------------------")
+    for v in vehicles:
+        print(f"{v[0]} | {v[1]} | {v[2]}")
 
-    cursor.execute("INSERT INTO Bookings (ParcelID, VehicleID, Date, Amount) VALUES (%s, %s, %s, %s)",
-                (parcel_id, vehicle_id, date.today(), amount))
-    db.commit()
+def get_vehicle_by_id(vehicle_id,):
+    query = """
+    SELECT VehicleID, Type, VStatus, VCapacity
+    FROM Vehicles
+    WHERE VehicleID = %s
+    """
+    cursor.execute(query, (vehicle_id,))
+    vehicle = cursor.fetchone()
+    if not vehicle:
+        return
 
-    cursor.execute("UPDATE Parcels SET Status='In Transit' WHERE ParcelID=%s", (parcel_id,))
-    db.commit()
-    print("Vehicle assigned and parcel status updated to 'In Transit'\n")
+    # Count active bookings for this vehicle
+    cursor.execute("SELECT COUNT(*) FROM Bookings WHERE VehicleID = %s", (vehicle_id,))
+    booking_count = cursor.fetchone()[0]
+
+    # Calculate % full = (booking_count / capacity) * 100
+    percent_full = (booking_count / vehicle[3]) * 100
+
+    print("VehicleID", vehicle[0])
+    print("Type", vehicle[1])
+    print("Status", vehicle[2])
+    print("PercentFull", round(percent_full, 2))
+
+
 
 def add_vehicle():
     vehicle_id = int(input("Enter new Vehicle ID: "))

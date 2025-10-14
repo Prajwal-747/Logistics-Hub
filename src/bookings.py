@@ -30,7 +30,7 @@ def get_booking_by_id(booking_id):
     else:
         return None
 
-def assign_vehicle():
+def create_booking():
     parcel_id = int(input("Enter Parcel ID: "))
     # Check parcel exists
     cursor.execute("SELECT ParcelID FROM Parcels WHERE ParcelID = %s", (parcel_id,))

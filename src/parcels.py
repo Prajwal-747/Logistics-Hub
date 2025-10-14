@@ -35,7 +35,6 @@ def get_parcel_by_id(parcel_id):
     else:
         return None
 
-
 def add_parcel():
     sender = input("Enter sender ID: ")
     receiver = input("Enter receiver: ")

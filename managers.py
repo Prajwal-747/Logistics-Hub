@@ -1,4 +1,5 @@
 import mysql.connector
+from tabulate import tabulate
 
 db = mysql.connector.connect(username="root", host="localhost", password="1234567890", database="warehouse")
 cursor = db.cursor()
@@ -18,10 +19,12 @@ def list_managers():
         cursor.execute(query)
         rows = cursor.fetchall()
 
-        print("ManagerID  Name            Contact           Warehouses Owned")
-        print("------------------------------------------------------------")
-        for row in rows:
-            print(f"{row[0]}  {row[1]}  {row[2]}  {row[3]}")
+        print("\nManagers List:\n")
+        if rows:
+            headers = ["ManagerID", "Name", "Contact", "Warehouses Owned"]
+            print(tabulate(rows, headers=headers, tablefmt="pretty"))
+        else:
+            print("No managers found.")
 
     except mysql.connector.Error as e:
         print("MySQL Error:", e)
@@ -63,7 +66,3 @@ def remove_manager(manager_id):
             print("No manager found with the given ID.")
     except mysql.connector.Error as e:
         print("MySQL Error:", e)
-
-add_manager()   
-remove_manager()
-list_managers()

@@ -1,4 +1,5 @@
 import mysql.connector
+from tabulate import tabulate
 
 db = mysql.connector.connect(username="root", host="localhost", password="1234567890", database="warehouse")
 cursor = db.cursor()
@@ -13,9 +14,13 @@ def list_wh():
     ON w.ManagerID = m.ManagerID;"""
     cursor.execute(query)
     data = cursor.fetchall()
-    print("(WarehouseID, Location, Manager Name)")
-    for i in data:
-        print(i)
+    print("\nWarehouses List:\n")
+    if data:
+        headers = ["WarehouseID", "Location", "Manager Name"]
+        print(tabulate(data, headers=headers, tablefmt="pretty"))
+    else:
+        print("No warehouses found.")
+    print()
 
 def add_wh():
     location = input("Enter location: ")

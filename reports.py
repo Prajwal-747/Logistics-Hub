@@ -1,4 +1,5 @@
 import mysql.connector
+from tabulate import tabulate
 
 db = mysql.connector.connect(username="root", host="localhost", password="1234567890", database="warehouse")
 cursor = db.cursor()
@@ -12,9 +13,11 @@ def report_parcel_status_summary():
     """
     cursor.execute(query)
     results = cursor.fetchall()
-    print("Parcel Status Summary:")
-    for status, count in results:
-        print(f"{status}: {count}")
+    print("\nParcel Status Summary:\n")
+    if results:
+        print(tabulate(results, headers=["Status", "Count"], tablefmt="pretty"))
+    else:
+        print("No parcel data available.")
     print()
 
 def report_warehouse_usage():
@@ -27,10 +30,11 @@ def report_warehouse_usage():
     """
     cursor.execute(query)
     results = cursor.fetchall()
-    print("Warehouse Usage Report:")
-    print("WarehouseID | Location | Capacity | Used")
-    for wid, loc, capacity, used in results:
-        print(f"{wid} | {loc} | {capacity} | {used}")
+    print("\nWarehouse Usage Report:\n")
+    if results:
+        print(tabulate(results, headers=["WarehouseID", "Location", "Capacity", "Used"], tablefmt="pretty"))
+    else:
+        print("No warehouse data available.")
     print()
 
 def report_vehicle_utilization():
@@ -43,29 +47,38 @@ def report_vehicle_utilization():
     """
     cursor.execute(query)
     results = cursor.fetchall()
-    print("Vehicle Utilization Report:")
-    print("VehicleID | Type | Status | Current Bookings")
-    for vid, vtype, status, bookings in results:
-        print(f"{vid} | {vtype} | {status} | {bookings}")
+    print("\nVehicle Utilization Report:\n")
+    if results:
+        print(tabulate(results, headers=["VehicleID", "Type", "Status", "Current Bookings"], tablefmt="pretty"))
+    else:
+        print("No vehicle data available.")
     print()
 
 def report_active_bookings():
     """List all active bookings with parcel and vehicle details"""
     query = """
-    SELECT b.BookingID, b.ParcelID, b.VehicleID, b.Date, b.Amount,
-           p.Status as ParcelStatus,
-           v.Type as VehicleType, v.Status as VehicleStatus
-    FROM Bookings b
-    JOIN Parcels p ON b.ParcelID = p.ParcelID
-    JOIN Vehicles v ON b.VehicleID = v.VehicleID
-    ORDER BY b.Date DESC
-    """
+SELECT b.BookingID, b.ParcelID, b.VehicleID, b.Date, b.Amount, p.PStatus as ParcelStatus, v.Type as VehicleType, v.VStatus as VehicleStatus
+FROM Bookings b
+JOIN Parcels p ON b.ParcelID = p.ParcelID
+JOIN Vehicles v ON b.VehicleID = v.VehicleID
+ORDER BY b.Date DESC
+"""
     cursor.execute(query)
     results = cursor.fetchall()
     print("Active Bookings:")
-    header = ("BookingID", "ParcelID", "VehicleID", "Date", "Amount", "ParcelStatus", "VehicleType", "VehicleStatus")
-    print(" | ".join(header))
-    for row in results:
-        print(" | ".join(str(col) for col in row))
+
+    headers = [
+        "BookingID", 
+        "ParcelID", 
+        "VehicleID", 
+        "Date", 
+        "Amount", 
+        "ParcelStatus", 
+        "VehicleType", 
+        "VehicleStatus"
+    ]
+
+    print("\nActive Bookings:\n")
+    print(tabulate(results, headers=headers, tablefmt="pretty"))
     print()
 

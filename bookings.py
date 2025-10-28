@@ -65,9 +65,6 @@ def cancel_booking():
     db.commit()
     print(f"Booking {booking_id} cancelled and parcel status reverted to 'Pending'.\n")
 
-# Example usage:
-# assign_vehicle()
-# cancel_booking()
 
 cursor.close()
 db.close()
